@@ -1,0 +1,70 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Player {
+  id       String   @id @default(uuid())
+  username String   @unique
+  faction  Faction
+  race     Races
+  armors   Armor[]
+  weapons  Weapon[]
+}
+
+model Armor {
+  id      String @id @default(uuid())
+  name    String
+  defence Int
+  dodge   Float
+
+  Player   Player? @relation(fields: [playerId], references: [id])
+  playerId String?
+}
+
+model Weapon {
+  id             String     @id @default(uuid())
+  physicalDamage Int
+  type           weaponType
+
+  player   Player @relation(fields: [playerId], references: [id])
+  playerId String @unique
+}
+
+// ** Enums **
+enum weaponType {
+  Sword
+  Mace
+  Bow
+  Scepter
+}
+
+enum Faction {
+  Alliance
+  Horder
+}
+
+enum Races {
+  Human
+  Dwarf
+  Gnome
+  NighElf
+  Orc
+  Troll
+  Tauren
+  BloodElf
+}
+
+enum SkillNames {
+  Fishing
+  FirstAid
+  Cooking
+  Blacksmith
+}
