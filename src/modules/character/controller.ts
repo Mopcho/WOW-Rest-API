@@ -168,7 +168,37 @@ async function create(data: characterStartData) {
 	}
 }
 
-async function update() {}
+async function update(data: Entry | Entry[]) {
+	try {
+		if (!Array.isArray(data)) {
+			let result = await prisma.player.update({
+				where: {
+					id: data.id,
+				},
+				data: data,
+			});
+
+			return result;
+		} else {
+			let result: Entry[] = [];
+			data.forEach(async (item) => {
+				let response = await prisma.player.update({
+					where: {
+						id: item.id,
+					},
+					data: item,
+				});
+
+				result.push(response);
+			});
+
+			return result;
+		}
+	} catch (err) {
+		console.log('Error in Character > Controller > Create');
+		console.log(err);
+	}
+}
 
 async function _delete() {}
 

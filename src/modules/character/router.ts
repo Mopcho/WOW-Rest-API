@@ -42,8 +42,22 @@ async function find(req: Request, res: Response) {
 	}
 }
 
-router.get('/:id', getOne);
-router.get('/', find);
-router.post('/', createCharacter);
+async function updateCharacter(req: Request, res: Response) {
+	try {
+		let data = req.body;
+
+		let response = await controller.update(data);
+
+		res.json(response);
+	} catch (err) {
+		console.log('Error in : updateCharacter [Router]');
+		console.log(err);
+	}
+}
+
+router.get('/:id', getOne); //Get by id
+router.get('/', find); //Find by filter
+router.post('/', createCharacter); // Create One | Create Many
+router.put('/', updateCharacter); //Update One | Update Many
 
 export default router;

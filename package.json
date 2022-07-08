@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "runDev": "nodemon src/server/index.ts",
-    "start" : "tsc && nodemon ./dist/server/index.js"
+    "start" : "tsc && nodemon ./dist/server/index.js --ext ts,json,js,mjs"
   },
   "keywords": [],
   "author": "",
