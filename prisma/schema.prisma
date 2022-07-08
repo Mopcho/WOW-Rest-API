@@ -58,7 +58,7 @@ enum ArrmorType {
 
 enum Faction {
   Alliance
-  Horder
+  Horde
 }
 
 enum Races {

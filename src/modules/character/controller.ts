@@ -3,11 +3,24 @@ import type { Faction as FactionRole } from '@prisma/client';
 import type { Races as RaceRole } from '@prisma/client';
 const prisma = new PrismaClient();
 
+type QueryDB = {
+	skip?: number;
+	take?: number;
+	orderBy?: Entry;
+	select?: Entry;
+	where?: Entry;
+};
+
 type Query = {
-	limit?: Number;
-	page?: Number;
-	sort?: String;
-	select?: String;
+	[index: string]: any;
+	skip?: number;
+	take?: number;
+	sort?: string | string[];
+	select?: string;
+};
+
+type Entry = {
+	[index: string]: any;
 };
 
 type characterStartData = {
@@ -17,11 +30,69 @@ type characterStartData = {
 	startingItem: string;
 };
 
+function buildOrderBy(sort: string | string[]): Entry {
+	let orderBy: Entry = {};
+
+	if (Array.isArray(sort)) {
+		//On Multiple sorts
+		sort.forEach((x) => {
+			if (x.startsWith('-')) {
+				//Descending
+				let key = x.slice(0, 1);
+				let value = 'desc';
+
+				orderBy[key.toString()] = value;
+			} else {
+				//Ascending
+				let key = x;
+				let value = 'asc';
+
+				orderBy[key.toString()] = value;
+			}
+		});
+	} else {
+		//On one sort
+		if (sort.startsWith('-')) {
+			//Descending
+			let key = sort.slice(0, 1);
+			let value = 'desc';
+
+			orderBy[key.toString()] = value;
+		} else {
+			//Ascending
+			let key = sort;
+			let value = 'asc';
+
+			orderBy[key.toString()] = value;
+		}
+	}
+
+	return orderBy;
+}
+
+function buildSelect(select: string | string[]): Entry {
+	let selectBuilder: Entry = {};
+
+	if (Array.isArray(select)) {
+		//On Multiple sorts
+		select.forEach((x) => {
+			selectBuilder[x] = true;
+		});
+	} else {
+		selectBuilder[select] = true;
+	}
+
+	return selectBuilder;
+}
+
 async function get(id: string) {
 	try {
 		let result = await prisma.player.findUnique({
 			where: {
 				id: id,
+			},
+			include: {
+				items: true,
 			},
 		});
 
@@ -38,18 +109,69 @@ async function get(id: string) {
 
 async function find(
 	query: Query,
-	limit?: Number,
-	page?: Number,
-	sort?: String,
+	skip?: Number,
+	take?: Number,
+	orderBy?: String,
 	select?: String
 ) {
-	let result = await prisma.player.findMany({
-		include: {
-			items: true,
-		},
-	});
+	try {
+		let queryBuilder: QueryDB = {};
 
-	return result;
+		if (query.take) {
+			queryBuilder.take = Number(query.take);
+			delete query.take;
+		} else {
+			queryBuilder.take = 10;
+		}
+
+		if (query.skip) {
+			queryBuilder.skip = Number(
+				(Number(query.skip) - 1) * queryBuilder.take
+			);
+			delete query.skip;
+		} else {
+			queryBuilder.skip = 0;
+		}
+
+		if (query.sort) {
+			// Check if sort is array or string
+			if (!queryBuilder.orderBy) {
+				queryBuilder.orderBy = {};
+			}
+
+			queryBuilder.orderBy = buildOrderBy(query.sort);
+
+			delete query.take;
+		}
+
+		if (query.select) {
+			if (!queryBuilder.select) {
+				queryBuilder.select = {};
+			}
+
+			queryBuilder.select = buildSelect(query.select);
+
+			delete query.select;
+		}
+
+		//Build where
+		if (!queryBuilder.where) {
+			queryBuilder.where = {};
+		}
+
+		for (const key in query) {
+			queryBuilder.where[key] = query[key];
+		}
+
+		console.log(queryBuilder);
+
+		let result = await prisma.player.findMany(queryBuilder);
+
+		return result;
+	} catch (err) {
+		console.log('Error in Character > Controller > find');
+		console.log(err);
+	}
 }
 
 async function create(data: characterStartData) {
