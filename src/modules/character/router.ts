@@ -29,7 +29,21 @@ async function createCharacter(req: Request, res: Response) {
 	}
 }
 
+async function find(req: Request, res: Response) {
+	try {
+		let query = req.query;
+
+		let response = await controller.find(query);
+
+		res.json(response);
+	} catch (err) {
+		console.log('Error in : GetOne [Router]');
+		console.log(err);
+	}
+}
+
 router.get('/:id', getOne);
+router.get('/', find);
 router.post('/', createCharacter);
 
 export default router;

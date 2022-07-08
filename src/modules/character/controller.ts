@@ -42,13 +42,23 @@ async function find(
 	page?: Number,
 	sort?: String,
 	select?: String
-) {}
+) {
+	let result = await prisma.player.findMany({
+		include: {
+			items: true,
+		},
+	});
+
+	return result;
+}
 
 async function create(data: characterStartData) {
 	try {
 		let { username, faction, race, startingItem } = data;
 
-		await prisma.player.create({
+		console.log(startingItem);
+
+		let result = await prisma.player.create({
 			data: {
 				username: username,
 				faction: faction,
@@ -58,6 +68,8 @@ async function create(data: characterStartData) {
 				},
 			},
 		});
+
+		return result;
 	} catch (err) {
 		console.log('Error in Character > Controller > Create');
 		console.log(err);
