@@ -1,34 +1,6 @@
 import { PrismaClient } from '@prisma/client';
-import type { Faction as FactionRole } from '@prisma/client';
-import type { Races as RaceRole } from '@prisma/client';
+import { QueryDB, Query, Entry, characterStartData } from '../../types';
 const prisma = new PrismaClient();
-
-type QueryDB = {
-	skip?: number;
-	take?: number;
-	orderBy?: Entry;
-	select?: Entry;
-	where?: Entry;
-};
-
-type Query = {
-	[index: string]: any;
-	skip?: number;
-	take?: number;
-	sort?: string | string[];
-	select?: string;
-};
-
-type Entry = {
-	[index: string]: any;
-};
-
-type characterStartData = {
-	username: string;
-	faction: FactionRole;
-	race: RaceRole;
-	startingItem: string;
-};
 
 function buildOrderBy(sort: string | string[]): Entry {
 	let orderBy: Entry = {};
@@ -162,8 +134,6 @@ async function find(
 		for (const key in query) {
 			queryBuilder.where[key] = query[key];
 		}
-
-		console.log(queryBuilder);
 
 		let result = await prisma.player.findMany(queryBuilder);
 
