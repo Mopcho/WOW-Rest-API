@@ -1,13 +1,28 @@
-import express, { Request, Response } from 'express';
+import express, { Request, Response, Router } from 'express';
 import controller from './controller';
 
-const router = express.Router();
+const router: Router = express.Router();
 
 async function getOne(req: Request, res: Response) {
 	try {
 		let id = req.params.id;
 
-		return await controller.get(id);
+		let response = await controller.get(id);
+
+		res.json(response);
+	} catch (err) {
+		console.log('Error in : GetOne [Router]');
+		console.log(err);
+	}
+}
+
+async function createCharacter(req: Request, res: Response) {
+	try {
+		let data = req.body;
+
+		let response = await controller.create(data);
+
+		res.json(response);
 	} catch (err) {
 		console.log('Error in : GetOne [Router]');
 		console.log(err);
@@ -15,5 +30,6 @@ async function getOne(req: Request, res: Response) {
 }
 
 router.get('/:id', getOne);
+router.post('/', createCharacter);
 
 export default router;

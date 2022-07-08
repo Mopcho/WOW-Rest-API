@@ -1,5 +1,21 @@
 import { PrismaClient } from '@prisma/client';
+import type { Faction as FactionRole } from '@prisma/client';
+import type { Races as RaceRole } from '@prisma/client';
 const prisma = new PrismaClient();
+
+type Query = {
+	limit?: Number;
+	page?: Number;
+	sort?: String;
+	select?: String;
+};
+
+type characterStartData = {
+	username: string;
+	faction: FactionRole;
+	race: RaceRole;
+	startingItem: string;
+};
 
 async function get(id: string) {
 	try {
@@ -20,9 +36,33 @@ async function get(id: string) {
 	}
 }
 
-async function find() {}
+async function find(
+	query: Query,
+	limit?: Number,
+	page?: Number,
+	sort?: String,
+	select?: String
+) {}
 
-async function create() {}
+async function create(data: characterStartData) {
+	try {
+		let { username, faction, race, startingItem } = data;
+
+		await prisma.player.create({
+			data: {
+				username: username,
+				faction: faction,
+				race: race,
+				items: {
+					connect: { id: startingItem },
+				},
+			},
+		});
+	} catch (err) {
+		console.log('Error in Character > Controller > Create');
+		console.log(err);
+	}
+}
 
 async function update() {}
 

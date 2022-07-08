@@ -23,12 +23,11 @@ model Item {
   type           ItemType
   weaponType     WeaponType?
   physicalDamage Int?
-  arrmorType     ArrmorType
+  arrmorType     ArrmorType?
   defence        Int?
   dodge          Float?
 
-  Player   Player? @relation(fields: [playerId], references: [id])
-  playerId String?
+  Player Player[]
 }
 
 model User {

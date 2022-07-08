@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "runDev": "nodemon src/server/index.ts"
+    "runDev": "nodemon src/server/index.ts",
+    "start" : "tsc && nodemon ./dist/server/index.js"
   },
   "keywords": [],
   "author": "",

@@ -1,8 +1,5 @@
-import express from 'express';
-import characterRouter from '../character/router';
+import express, { Router } from 'express';
 
-const router = express.Router();
-
-router.use('/character', characterRouter);
+const router: Router = express.Router();
 
 export default router;
