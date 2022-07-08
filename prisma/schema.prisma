@@ -11,39 +11,50 @@ datasource db {
 }
 
 model Player {
-  id       String   @id @default(uuid())
-  username String   @unique
+  id       String  @id @default(uuid())
+  username String  @unique
   faction  Faction
   race     Races
-  armors   Armor[]
-  weapons  Weapon[]
+  items    Item[]
 }
 
-model Armor {
-  id      String @id @default(uuid())
-  name    String
-  defence Int
-  dodge   Float
+model Item {
+  id             String      @id @default(uuid())
+  type           ItemType
+  weaponType     WeaponType?
+  physicalDamage Int?
+  arrmorType     ArrmorType
+  defence        Int?
+  dodge          Float?
 
   Player   Player? @relation(fields: [playerId], references: [id])
   playerId String?
 }
 
-model Weapon {
-  id             String     @id @default(uuid())
-  physicalDamage Int
-  type           weaponType
-
-  player   Player @relation(fields: [playerId], references: [id])
-  playerId String @unique
+model User {
+  id       String  @id @default(uuid())
+  username String  @unique
+  email    String? @unique
+  password String
 }
 
 // ** Enums **
-enum weaponType {
+enum ItemType {
+  Weapon
+  Arrmor
+}
+
+enum WeaponType {
   Sword
   Mace
   Bow
   Scepter
+}
+
+enum ArrmorType {
+  Mail
+  Cloth
+  Plate
 }
 
 enum Faction {
