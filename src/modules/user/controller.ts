@@ -1,48 +1,8 @@
 import { PrismaClient, User } from '@prisma/client';
 import { QueryDB, Query, Entry } from '../../types';
 import bcrypt from 'bcrypt';
-import { buildSelect } from '../../utils/queryUtils';
+import { buildSelect, buildOrderBy } from '../../utils/queryUtils';
 const prisma = new PrismaClient();
-
-function buildOrderBy(sort: string | string[]): Entry {
-	let orderBy: Entry = {};
-
-	if (Array.isArray(sort)) {
-		//On Multiple sorts
-		sort.forEach((x) => {
-			if (x.startsWith('-')) {
-				//Descending
-				let key = x.slice(0, 1);
-				let value = 'desc';
-
-				orderBy[key.toString()] = value;
-			} else {
-				//Ascending
-				let key = x;
-				let value = 'asc';
-
-				orderBy[key.toString()] = value;
-			}
-		});
-	} else {
-		//On one sort
-		if (sort.startsWith('-')) {
-			//Descending
-			let key = sort.slice(0, 1);
-			let value = 'desc';
-
-			orderBy[key.toString()] = value;
-		} else {
-			//Ascending
-			let key = sort;
-			let value = 'asc';
-
-			orderBy[key.toString()] = value;
-		}
-	}
-
-	return orderBy;
-}
 
 type userCreationInfo = {
 	username: string;
@@ -111,7 +71,7 @@ async function find(
 
 			queryBuilder.orderBy = buildOrderBy(query.sort);
 
-			delete query.take;
+			delete query.sort;
 		}
 
 		if (query.select) {

@@ -8,47 +8,8 @@ import {
 	AdvancedQueryDB,
 } from '../../types';
 import { buildQuery, buildSelect } from '../../utils/queryUtils';
+import { buildOrderBy } from '../../utils/queryUtils';
 const prisma = new PrismaClient();
-
-function buildOrderBy(sort: string | string[]): Entry {
-	let orderBy: Entry = {};
-
-	if (Array.isArray(sort)) {
-		//On Multiple sorts
-		sort.forEach((x) => {
-			if (x.startsWith('-')) {
-				//Descending
-				let key = x.slice(1, x.length);
-				let value = 'desc';
-
-				orderBy[key.toString()] = value;
-			} else {
-				//Ascending
-				let key = x;
-				let value = 'asc';
-
-				orderBy[key.toString()] = value;
-			}
-		});
-	} else {
-		//On one sort
-		if (sort.startsWith('-')) {
-			//Descending
-			let key = sort.slice(1, sort.length);
-			let value = 'desc';
-
-			orderBy[key.toString()] = value;
-		} else {
-			//Ascending
-			let key = sort;
-			let value = 'asc';
-
-			orderBy[key.toString()] = value;
-		}
-	}
-
-	return orderBy;
-}
 
 async function advancedFind(
 	query: AdvancedQuery,
@@ -97,7 +58,7 @@ async function find(
 	query: Query,
 	skip?: Number,
 	take?: Number,
-	orderBy?: String,
+	sort?: String,
 	select?: String
 ) {
 	try {

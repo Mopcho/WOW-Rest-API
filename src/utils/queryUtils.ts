@@ -31,3 +31,43 @@ export function buildQuery(query: AdvancedQuery): QueryDB {
 
 	return queryBuilder;
 }
+
+export function buildOrderBy(sort: string | string[]): Entry {
+	let orderBy: Entry = {};
+
+	if (Array.isArray(sort)) {
+		//On Multiple sorts
+		sort.forEach((x) => {
+			if (x.startsWith('-')) {
+				//Descending
+				let key = x.slice(1, x.length);
+				let value = 'desc';
+
+				orderBy[key.toString()] = value;
+			} else {
+				//Ascending
+				let key = x;
+				let value = 'asc';
+
+				orderBy[key.toString()] = value;
+			}
+		});
+	} else {
+		//On one sort
+		if (sort.startsWith('-')) {
+			//Descending
+			let key = sort.slice(1, sort.length);
+			let value = 'desc';
+
+			orderBy[key.toString()] = value;
+		} else {
+			//Ascending
+			let key = sort;
+			let value = 'asc';
+
+			orderBy[key.toString()] = value;
+		}
+	}
+
+	return orderBy;
+}

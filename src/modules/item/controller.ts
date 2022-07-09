@@ -3,7 +3,7 @@ import { ItemType as ItemType } from '@prisma/client';
 import type { WeaponType as WeaponType } from '@prisma/client';
 import type { ArrmorType as ArrmorType } from '@prisma/client';
 import { QueryDB, Query, Entry } from '../../types';
-import { buildSelect } from '../../utils/queryUtils';
+import { buildSelect, buildOrderBy } from '../../utils/queryUtils';
 const prisma = new PrismaClient();
 
 type itemData = {
@@ -15,52 +15,12 @@ type itemData = {
 	dodge?: number;
 };
 
-function buildOrderBy(sort: string | string[]): Entry {
-	let orderBy: Entry = {};
-
-	if (Array.isArray(sort)) {
-		//On Multiple sorts
-		sort.forEach((x) => {
-			if (x.startsWith('-')) {
-				//Descending
-				let key = x.slice(0, 1);
-				let value = 'desc';
-
-				orderBy[key.toString()] = value;
-			} else {
-				//Ascending
-				let key = x;
-				let value = 'asc';
-
-				orderBy[key.toString()] = value;
-			}
-		});
-	} else {
-		//On one sort
-		if (sort.startsWith('-')) {
-			//Descending
-			let key = sort.slice(0, 1);
-			let value = 'desc';
-
-			orderBy[key.toString()] = value;
-		} else {
-			//Ascending
-			let key = sort;
-			let value = 'asc';
-
-			orderBy[key.toString()] = value;
-		}
-	}
-
-	return orderBy;
-}
-
 // Find - Done
 async function find(
 	query: Query,
 	skip?: Number,
 	take?: Number,
-	orderBy?: String,
+	sort?: String,
 	select?: Entry
 ) {
 	try {
@@ -90,7 +50,7 @@ async function find(
 
 			queryBuilder.orderBy = buildOrderBy(query.sort);
 
-			delete query.take;
+			delete query.sort;
 		}
 
 		if (query.select) {
@@ -109,7 +69,11 @@ async function find(
 		}
 
 		for (const key in query) {
-			queryBuilder.where[key] = query[key];
+			if (key == 'defence' || key == 'dodge' || key == 'physicalDamage') {
+				queryBuilder.where[key] = Number(query[key]);
+			} else {
+				queryBuilder.where[key] = query[key];
+			}
 		}
 
 		let result = await prisma.item.findMany(queryBuilder);
