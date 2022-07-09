@@ -68,10 +68,34 @@ async function deleteCharacter(req: Request, res: Response) {
 	}
 }
 
+async function getAllItems(req: Request, res: Response) {
+	try {
+		let query = {
+			where: {
+				id: req.params.id,
+			},
+			select: {
+				id: true,
+				username: true,
+				items: true,
+			},
+		};
+
+		let response = await controller.advancedFind(query);
+
+		res.json(response);
+	} catch (err) {
+		console.log('Error in : getAllItems [Router]');
+		console.log(err);
+	}
+}
+
 router.get('/:id', getOne); //Get by id
 router.get('/', find); //Find by filter
 router.post('/', createCharacter); // Create One | Create Many
 router.put('/', updateCharacter); //Update One | Update Many
 router.delete('/', deleteCharacter); //Delete One | Delete Many
 
+//Secondary Endpoints
+router.get('/:id/items', getAllItems);
 export default router;

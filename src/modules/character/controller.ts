@@ -1,5 +1,13 @@
 import { Player, PrismaClient } from '@prisma/client';
-import { QueryDB, Query, Entry, characterStartData } from '../../types';
+import {
+	QueryDB,
+	Query,
+	Entry,
+	characterStartData,
+	AdvancedQuery,
+	AdvancedQueryDB,
+} from '../../types';
+import { buildQuery, buildSelect } from '../../utils/queryUtils';
 const prisma = new PrismaClient();
 
 function buildOrderBy(sort: string | string[]): Entry {
@@ -10,7 +18,7 @@ function buildOrderBy(sort: string | string[]): Entry {
 		sort.forEach((x) => {
 			if (x.startsWith('-')) {
 				//Descending
-				let key = x.slice(0, 1);
+				let key = x.slice(1, x.length);
 				let value = 'desc';
 
 				orderBy[key.toString()] = value;
@@ -26,7 +34,7 @@ function buildOrderBy(sort: string | string[]): Entry {
 		//On one sort
 		if (sort.startsWith('-')) {
 			//Descending
-			let key = sort.slice(0, 1);
+			let key = sort.slice(1, sort.length);
 			let value = 'desc';
 
 			orderBy[key.toString()] = value;
@@ -42,19 +50,23 @@ function buildOrderBy(sort: string | string[]): Entry {
 	return orderBy;
 }
 
-function buildSelect(select: string | string[]): Entry {
-	let selectBuilder: Entry = {};
+async function advancedFind(
+	query: AdvancedQuery,
+	skip?: Number,
+	take?: Number,
+	orderBy?: Entry,
+	select?: Entry
+) {
+	try {
+		let queryBuilder: AdvancedQueryDB = buildQuery(query);
 
-	if (Array.isArray(select)) {
-		//On Multiple sorts
-		select.forEach((x) => {
-			selectBuilder[x] = true;
-		});
-	} else {
-		selectBuilder[select] = true;
+		let result = await prisma.player.findMany(queryBuilder);
+
+		return result;
+	} catch (err) {
+		console.log('Error in Character > Controller > find');
+		console.log(err);
 	}
-
-	return selectBuilder;
 }
 
 //GetOne - Done
@@ -115,7 +127,7 @@ async function find(
 
 			queryBuilder.orderBy = buildOrderBy(query.sort);
 
-			delete query.take;
+			delete query.sort;
 		}
 
 		if (query.select) {
@@ -262,4 +274,5 @@ export default {
 	create,
 	update,
 	_delete,
+	advancedFind,
 };

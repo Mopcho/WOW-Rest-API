@@ -1,6 +1,7 @@
 import { PrismaClient, User } from '@prisma/client';
 import { QueryDB, Query, Entry } from '../../types';
 import bcrypt from 'bcrypt';
+import { buildSelect } from '../../utils/queryUtils';
 const prisma = new PrismaClient();
 
 function buildOrderBy(sort: string | string[]): Entry {
@@ -41,23 +42,6 @@ function buildOrderBy(sort: string | string[]): Entry {
 	}
 
 	return orderBy;
-}
-
-function buildSelect(select: string | string[]): Entry {
-	let selectBuilder: Entry = {};
-
-	if (Array.isArray(select)) {
-		//On Multiple sorts
-		select.forEach((x) => {
-			selectBuilder[x] = true;
-		});
-	} else {
-		selectBuilder[select] = true;
-	}
-
-	selectBuilder['password'] = false;
-
-	return selectBuilder;
 }
 
 type userCreationInfo = {

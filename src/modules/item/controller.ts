@@ -3,6 +3,7 @@ import { ItemType as ItemType } from '@prisma/client';
 import type { WeaponType as WeaponType } from '@prisma/client';
 import type { ArrmorType as ArrmorType } from '@prisma/client';
 import { QueryDB, Query, Entry } from '../../types';
+import { buildSelect } from '../../utils/queryUtils';
 const prisma = new PrismaClient();
 
 type itemData = {
@@ -54,28 +55,13 @@ function buildOrderBy(sort: string | string[]): Entry {
 	return orderBy;
 }
 
-function buildSelect(select: string | string[]): Entry {
-	let selectBuilder: Entry = {};
-
-	if (Array.isArray(select)) {
-		//On Multiple sorts
-		select.forEach((x) => {
-			selectBuilder[x] = true;
-		});
-	} else {
-		selectBuilder[select] = true;
-	}
-
-	return selectBuilder;
-}
-
 // Find - Done
 async function find(
 	query: Query,
 	skip?: Number,
 	take?: Number,
 	orderBy?: String,
-	select?: String
+	select?: Entry
 ) {
 	try {
 		let queryBuilder: QueryDB = {};

@@ -14,7 +14,23 @@ export type Query = {
 	skip?: number;
 	take?: number;
 	sort?: string | string[];
-	select?: string;
+	select?: string | string[];
+};
+
+export type AdvancedQuery = {
+	[index: string]: any;
+	skip?: number;
+	take?: number;
+	sort?: string | string[];
+	select?: Entry;
+};
+
+export type AdvancedQueryDB = {
+	skip?: number;
+	take?: number;
+	orderBy?: Entry;
+	select?: Entry;
+	where?: Entry;
 };
 
 export type Entry = {
