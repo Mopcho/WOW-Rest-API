@@ -2,8 +2,7 @@ import { Item, PrismaClient } from '@prisma/client';
 import { ItemType as ItemType } from '@prisma/client';
 import type { WeaponType as WeaponType } from '@prisma/client';
 import type { ArrmorType as ArrmorType } from '@prisma/client';
-import { QueryDB, Query, Entry, characterStartData } from '../../types';
-import { response } from 'express';
+import { QueryDB, Query, Entry } from '../../types';
 const prisma = new PrismaClient();
 
 type itemData = {
@@ -70,6 +69,7 @@ function buildSelect(select: string | string[]): Entry {
 	return selectBuilder;
 }
 
+// Find - Done
 async function find(
 	query: Query,
 	skip?: Number,
@@ -135,13 +135,13 @@ async function find(
 	}
 }
 
-//Create One | Create Many
+//Create One | Create Many - Done
 async function create(data: itemData | itemData[]) {
 	try {
 		if (Array.isArray(data)) {
+			let response: Array<Item> = [];
 			data.forEach(async (item) => {
 				let itemType = item.type;
-				let response: Array<Item> = [];
 
 				if (itemType == ItemType.Weapon) {
 					let { physicalDamage, weaponType } = item;
@@ -269,7 +269,7 @@ async function update(data: Entry | Entry[]) {
 	}
 }
 
-//Delete One / Delete Many
+//Delete One / Delete Many - Done
 async function _delete(data: Entry | Entry[]) {
 	try {
 		if (!Array.isArray(data)) {
