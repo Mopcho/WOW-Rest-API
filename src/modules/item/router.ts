@@ -27,6 +27,47 @@ async function findItems(req: Request, res: Response) {
 	}
 }
 
+async function getOne(req: Request, res: Response) {
+	try {
+		let id = req.params.id;
+
+		let response = await controller.get(id);
+
+		res.json(response);
+	} catch (err) {
+		console.log('Error in : GetOne [Router]');
+		console.log(err);
+	}
+}
+
+async function updateCharacter(req: Request, res: Response) {
+	try {
+		let data = req.body;
+
+		let response = await controller.update(data);
+
+		res.json(response);
+	} catch (err) {
+		console.log('Error in : updateCharacter [Router]');
+		console.log(err);
+	}
+}
+
+async function deleteCharacter(req: Request, res: Response) {
+	try {
+		let data = req.body;
+
+		let response = await controller._delete(data);
+
+		res.json(response);
+	} catch (err) {
+		console.log('Error in : deleteCharacter [Router]');
+		console.log(err);
+	}
+}
+router.get('/:id', getOne); //Get by id
+router.put('/', updateCharacter); //Update One | Update Many
+router.delete('/', deleteCharacter); //Delete One | Delete Many
 router.get('/', findItems);
 router.post('/', createItem);
 
