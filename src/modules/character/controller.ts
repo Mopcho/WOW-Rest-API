@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { Player, PrismaClient } from '@prisma/client';
 import { QueryDB, Query, Entry, characterStartData } from '../../types';
 const prisma = new PrismaClient();
 
@@ -57,6 +57,7 @@ function buildSelect(select: string | string[]): Entry {
 	return selectBuilder;
 }
 
+//GetOne - Done
 async function get(id: string) {
 	try {
 		let result = await prisma.player.findUnique({
@@ -79,6 +80,7 @@ async function get(id: string) {
 	}
 }
 
+//Find - Done
 async function find(
 	query: Query,
 	skip?: Number,
@@ -144,30 +146,53 @@ async function find(
 	}
 }
 
-async function create(data: characterStartData) {
+//CreateOne / Create Many - Done
+async function create(data: characterStartData | characterStartData[]) {
 	try {
-		let { username, faction, race, startingItem } = data;
+		if (Array.isArray(data)) {
+			let response: Array<Player> = [];
 
-		console.log(startingItem);
+			data.forEach(async (x) => {
+				let { username, faction, race, startingItem } = x;
 
-		let result = await prisma.player.create({
-			data: {
-				username: username,
-				faction: faction,
-				race: race,
-				items: {
-					connect: { id: startingItem },
+				let result = await prisma.player.create({
+					data: {
+						username: username,
+						faction: faction,
+						race: race,
+						items: {
+							connect: { id: startingItem },
+						},
+					},
+				});
+
+				response.push(result);
+			});
+
+			return response;
+		} else {
+			let { username, faction, race, startingItem } = data;
+
+			let response = await prisma.player.create({
+				data: {
+					username: username,
+					faction: faction,
+					race: race,
+					items: {
+						connect: { id: startingItem },
+					},
 				},
-			},
-		});
+			});
 
-		return result;
+			return response;
+		}
 	} catch (err) {
 		console.log('Error in Character > Controller > Create');
 		console.log(err);
 	}
 }
 
+// Update one / Update Many - Done
 async function update(data: Entry | Entry[]) {
 	try {
 		if (!Array.isArray(data)) {
@@ -200,7 +225,36 @@ async function update(data: Entry | Entry[]) {
 	}
 }
 
-async function _delete() {}
+//Delete One / Delete Many
+async function _delete(data: Entry | Entry[]) {
+	try {
+		if (!Array.isArray(data)) {
+			let result = await prisma.player.delete({
+				where: {
+					id: data.id,
+				},
+			});
+
+			return result;
+		} else {
+			let result: Entry[] = [];
+			data.forEach(async (item) => {
+				let response = await prisma.player.delete({
+					where: {
+						id: item.id,
+					},
+				});
+
+				result.push(response);
+			});
+
+			return result;
+		}
+	} catch (err) {
+		console.log('Error in Character > Controller > Create');
+		console.log(err);
+	}
+}
 
 export default {
 	get,
