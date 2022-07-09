@@ -15,12 +15,16 @@ model Player {
   username String  @unique
   faction  Faction
   race     Races
+  gold     Float   @default(0)
+  wins     Int     @default(0)
+  loses    Int     @default(0)
   items    Item[]
 }
 
 model Item {
   id             String      @id @default(uuid())
   type           ItemType
+  price          Float       @default(0.10)
   weaponType     WeaponType?
   physicalDamage Int?
   arrmorType     ArrmorType?

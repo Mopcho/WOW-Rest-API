@@ -107,7 +107,11 @@ async function find(
 		}
 
 		for (const key in query) {
-			queryBuilder.where[key] = query[key];
+			if (key == 'gold' || key == 'wins' || key == 'loses') {
+				queryBuilder.where[key] = Number(query[key]);
+			} else {
+				queryBuilder.where[key] = query[key];
+			}
 		}
 
 		let result = await prisma.player.findMany(queryBuilder);
