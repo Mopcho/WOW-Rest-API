@@ -13,6 +13,10 @@ const prisma = new PrismaClient();
 const levelX = 0.3;
 const levelY = 2;
 
+const healthPerLevel = 30;
+const baseHealthMultiplyer = 2;
+const healthPerStamina = 3;
+
 async function advancedFind(
 	query: AdvancedQueryDB,
 	skip?: Number,
@@ -253,29 +257,34 @@ async function getAllItems(playerId: string) {
 
 async function buyItem(playerId: string, itemId: string) {
 	try {
+		//Get player
 		let player = await prisma.player.findUnique({
 			where: {
 				id: playerId,
 			},
 		});
 
+		//Get item
 		let item = await prisma.item.findUnique({
 			where: {
 				id: itemId,
 			},
 		});
 
-		//Checks
+		//Checks if player and item exist
 		if (!item || !player) {
 			throw new Error('Not Found');
 		}
 
+		// Check if player can afford this item
 		if (item.price > player.gold) {
 			return false;
 		}
 
+		// Make a new gold const for player's gold
 		const newGold = player.gold - item.price;
 
+		//Update player's gold and add item to his list
 		let response = await prisma.player.update({
 			where: {
 				id: playerId,
@@ -297,6 +306,7 @@ async function buyItem(playerId: string, itemId: string) {
 	}
 }
 
+// TODO  : Check
 async function addLose(playerId: string) {
 	try {
 		let player = await prisma.player.findUnique({
@@ -335,34 +345,82 @@ async function addLose(playerId: string) {
 
 async function addWin(playerId: string) {
 	try {
+		//Get player
 		let player = await prisma.player.findUnique({
 			where: {
 				id: playerId,
 			},
 		});
 
+		// Check if player exists
 		if (!player) {
 			throw new Error('Nor Found');
 		}
 
+		// Make a new value for play's wins
 		let newWins = player.wins + 1;
 
+		// Add experience for winning
 		let newExp = player.totalExperience + 8;
 
+		// Calculate level based on experience
 		let newLevel = Math.floor(levelX * Math.sqrt(newExp));
 
+		// Apply the new level , wins , and total experience to player
 		let response = await prisma.player.update({
 			where: {
 				id: playerId,
 			},
 			data: {
-				loses: newWins,
 				level: newLevel,
+				wins: newWins,
 				totalExperience: newExp,
 			},
 		});
 
+		// If character leveled up update his total health
+		if (newLevel > player.level) {
+			await adjustTotalHealth(playerId);
+		}
+
+		//Return response
 		return response;
+	} catch (err) {
+		console.log('Error in Character > Controller > Buy Item');
+		console.log(err);
+	}
+}
+
+async function adjustTotalHealth(playerId: string) {
+	try {
+		let playerItems = await prisma.player.findUnique({
+			where: {
+				id: playerId,
+			},
+			select: {
+				items: true,
+			},
+		});
+
+		if (!playerItems) {
+			throw new Error('Nor Found');
+		}
+
+		let itemsArray = playerItems.items;
+		let stamina: number = 0;
+
+		itemsArray.forEach((item) => {
+			if (item.stamina) {
+				stamina += item.stamina;
+			}
+		});
+
+		console.log(stamina);
+		// Sum total stamina
+		// Calculate total health by this :
+		// totalHealth = (level * baseHealth)^BHM + (stamina * HPS)
+
+		return { ok: false };
 	} catch (err) {
 		console.log('Error in Character > Controller > Buy Item');
 		console.log(err);

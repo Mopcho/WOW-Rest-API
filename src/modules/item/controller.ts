@@ -88,77 +88,25 @@ async function find(
 //Create One | Create Many - Done
 async function create(data: itemData | itemData[]) {
 	try {
+		//If we are passed multiple items
 		if (Array.isArray(data)) {
 			let response: Array<Item> = [];
+
 			data.forEach(async (item) => {
-				let itemType = item.type;
+				let result = await prisma.item.create({
+					data: item,
+				});
 
-				if (itemType == ItemType.Weapon) {
-					let { physicalDamage, weaponType } = item;
-
-					let result = await prisma.item.create({
-						data: {
-							type: itemType,
-							physicalDamage: Number(physicalDamage),
-							weaponType: weaponType,
-						},
-					});
-
-					response.push(result);
-				}
-				if (itemType == ItemType.Arrmor) {
-					let { defence, arrmorType, dodge } = item;
-
-					defence = Number(defence);
-					dodge = Number(dodge);
-
-					let result = await prisma.item.create({
-						data: {
-							type: itemType,
-							defence: defence,
-							arrmorType: arrmorType,
-							dodge: dodge,
-						},
-					});
-
-					response.push(result);
-				}
+				response.push(result);
 			});
 
 			return response;
 		} else {
-			let itemType = data.type;
+			let result = await prisma.item.create({
+				data: data,
+			});
 
-			if (itemType == ItemType.Weapon) {
-				let { physicalDamage, weaponType } = data;
-
-				let result = await prisma.item.create({
-					data: {
-						type: itemType,
-						physicalDamage: Number(physicalDamage),
-						weaponType: weaponType,
-					},
-				});
-
-				return result;
-			}
-			if (itemType == ItemType.Arrmor) {
-				let { defence, arrmorType, dodge } = data;
-
-				defence = Number(defence);
-				dodge = Number(dodge);
-
-				let result = await prisma.item.create({
-					data: {
-						type: itemType,
-						defence: defence,
-						arrmorType: arrmorType,
-						dodge: dodge,
-					},
-				});
-
-				return result;
-			}
+			return result;
 		}
 	} catch (err) {
 		console.log('Error in Item > Controller > Create');

@@ -20,6 +20,7 @@ model Player {
   loses           Int     @default(0)
   level           Int     @default(1)
   totalExperience Float   @default(0)
+  totalHealth     Int     @default(100)
   items           Item[]
 }
 
@@ -32,8 +33,9 @@ model Item {
   arrmorType     ArrmorType?
   defence        Int?
   dodge          Float?
+  stamina        Int?
 
-  Player Player[]
+  player Player[]
 }
 
 model User {
