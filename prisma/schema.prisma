@@ -11,14 +11,16 @@ datasource db {
 }
 
 model Player {
-  id       String  @id @default(uuid())
-  username String  @unique
-  faction  Faction
-  race     Races
-  gold     Float   @default(0)
-  wins     Int     @default(0)
-  loses    Int     @default(0)
-  items    Item[]
+  id              String  @id @default(uuid())
+  username        String  @unique
+  faction         Faction
+  race            Races
+  gold            Float   @default(0)
+  wins            Int     @default(0)
+  loses           Int     @default(0)
+  level           Int     @default(1)
+  totalExperience Float   @default(0)
+  items           Item[]
 }
 
 model Item {

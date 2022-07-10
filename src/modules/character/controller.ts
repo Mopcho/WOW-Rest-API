@@ -10,6 +10,9 @@ import { buildSelect } from '../../utils/queryUtils';
 import { buildOrderBy } from '../../utils/queryUtils';
 const prisma = new PrismaClient();
 
+const levelX = 0.3;
+const levelY = 2;
+
 async function advancedFind(
 	query: AdvancedQueryDB,
 	skip?: Number,
@@ -294,6 +297,78 @@ async function buyItem(playerId: string, itemId: string) {
 	}
 }
 
+async function addLose(playerId: string) {
+	try {
+		let player = await prisma.player.findUnique({
+			where: {
+				id: playerId,
+			},
+		});
+
+		if (!player) {
+			throw new Error('Nor Found');
+		}
+
+		let newLoses = player.loses + 1;
+
+		let newExp = player.totalExperience + 4;
+
+		let newLevel = Math.floor(levelX * Math.sqrt(newExp));
+
+		let response = await prisma.player.update({
+			where: {
+				id: playerId,
+			},
+			data: {
+				loses: newLoses,
+				level: newLevel,
+				totalExperience: newExp,
+			},
+		});
+
+		return response;
+	} catch (err) {
+		console.log('Error in Character > Controller > Buy Item');
+		console.log(err);
+	}
+}
+
+async function addWin(playerId: string) {
+	try {
+		let player = await prisma.player.findUnique({
+			where: {
+				id: playerId,
+			},
+		});
+
+		if (!player) {
+			throw new Error('Nor Found');
+		}
+
+		let newWins = player.wins + 1;
+
+		let newExp = player.totalExperience + 8;
+
+		let newLevel = Math.floor(levelX * Math.sqrt(newExp));
+
+		let response = await prisma.player.update({
+			where: {
+				id: playerId,
+			},
+			data: {
+				loses: newWins,
+				level: newLevel,
+				totalExperience: newExp,
+			},
+		});
+
+		return response;
+	} catch (err) {
+		console.log('Error in Character > Controller > Buy Item');
+		console.log(err);
+	}
+}
+
 export default {
 	get,
 	find,
@@ -303,4 +378,6 @@ export default {
 	advancedFind,
 	getAllItems,
 	buyItem,
+	addWin,
+	addLose,
 };

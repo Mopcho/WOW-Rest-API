@@ -93,6 +93,28 @@ async function buyItem(req: Request, res: Response) {
 	}
 }
 
+async function lose(req: Request, res: Response) {
+	try {
+		let response = await controller.addLose(req.params.id);
+
+		res.json(response);
+	} catch (err) {
+		console.log('Error in : lose [Router]');
+		console.log(err);
+	}
+}
+
+async function win(req: Request, res: Response) {
+	try {
+		let response = await controller.addWin(req.params.id);
+
+		res.json(response);
+	} catch (err) {
+		console.log('Error in : win [Router]');
+		console.log(err);
+	}
+}
+
 router.get('/:id', getOne); //Get by id
 router.get('/', find); //Find by filter
 router.post('/', createCharacter); // Create One | Create Many
@@ -102,5 +124,7 @@ router.delete('/', deleteCharacter); //Delete One | Delete Many
 //Secondary Endpoints
 router.get('/:id/items', getAllItems);
 router.get('/:playerId/buyItem/:itemId', buyItem);
+router.put('/:id/lose', lose);
+router.put('/:id/win', win);
 
 export default router;
