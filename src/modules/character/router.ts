@@ -79,6 +79,20 @@ async function getAllItems(req: Request, res: Response) {
 	}
 }
 
+async function buyItem(req: Request, res: Response) {
+	try {
+		let response = await controller.buyItem(
+			req.params.playerId,
+			req.params.itemId
+		);
+
+		res.json(response);
+	} catch (err) {
+		console.log('Error in : getAllItems [Router]');
+		console.log(err);
+	}
+}
+
 router.get('/:id', getOne); //Get by id
 router.get('/', find); //Find by filter
 router.post('/', createCharacter); // Create One | Create Many
@@ -87,4 +101,6 @@ router.delete('/', deleteCharacter); //Delete One | Delete Many
 
 //Secondary Endpoints
 router.get('/:id/items', getAllItems);
+router.get('/:playerId/buyItem/:itemId', buyItem);
+
 export default router;

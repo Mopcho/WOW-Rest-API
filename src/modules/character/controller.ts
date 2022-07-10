@@ -237,8 +237,6 @@ async function getAllItems(playerId: string) {
 				id: playerId,
 			},
 			select: {
-				id: true,
-				username: true,
 				items: true,
 			},
 		});
@@ -246,6 +244,52 @@ async function getAllItems(playerId: string) {
 		return response;
 	} catch (err) {
 		console.log('Error in Character > Controller > Find All Items');
+		console.log(err);
+	}
+}
+
+async function buyItem(playerId: string, itemId: string) {
+	try {
+		let player = await prisma.player.findUnique({
+			where: {
+				id: playerId,
+			},
+		});
+
+		let item = await prisma.item.findUnique({
+			where: {
+				id: itemId,
+			},
+		});
+
+		//Checks
+		if (!item || !player) {
+			throw new Error('Not Found');
+		}
+
+		if (item.price > player.gold) {
+			return false;
+		}
+
+		const newGold = player.gold - item.price;
+
+		let response = await prisma.player.update({
+			where: {
+				id: playerId,
+			},
+			data: {
+				gold: newGold,
+				items: {
+					connect: {
+						id: itemId,
+					},
+				},
+			},
+		});
+
+		return response;
+	} catch (err) {
+		console.log('Error in Character > Controller > Buy Item');
 		console.log(err);
 	}
 }
@@ -258,4 +302,5 @@ export default {
 	_delete,
 	advancedFind,
 	getAllItems,
+	buyItem,
 };
