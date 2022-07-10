@@ -70,18 +70,7 @@ async function deleteCharacter(req: Request, res: Response) {
 
 async function getAllItems(req: Request, res: Response) {
 	try {
-		let query = {
-			where: {
-				id: req.params.id,
-			},
-			select: {
-				id: true,
-				username: true,
-				items: true,
-			},
-		};
-
-		let response = await controller.advancedFind(query);
+		let response = await controller.getAllItems(req.params.id);
 
 		res.json(response);
 	} catch (err) {

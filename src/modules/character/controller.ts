@@ -4,24 +4,21 @@ import {
 	Query,
 	Entry,
 	characterStartData,
-	AdvancedQuery,
 	AdvancedQueryDB,
 } from '../../types';
-import { buildQuery, buildSelect } from '../../utils/queryUtils';
+import { buildSelect } from '../../utils/queryUtils';
 import { buildOrderBy } from '../../utils/queryUtils';
 const prisma = new PrismaClient();
 
 async function advancedFind(
-	query: AdvancedQuery,
+	query: AdvancedQueryDB,
 	skip?: Number,
 	take?: Number,
 	orderBy?: Entry,
 	select?: Entry
 ) {
 	try {
-		let queryBuilder: AdvancedQueryDB = buildQuery(query);
-
-		let result = await prisma.player.findMany(queryBuilder);
+		let result = await prisma.player.findMany(query);
 
 		return result;
 	} catch (err) {
@@ -233,6 +230,26 @@ async function _delete(data: Entry | Entry[]) {
 	}
 }
 
+async function getAllItems(playerId: string) {
+	try {
+		let response = await prisma.player.findFirst({
+			where: {
+				id: playerId,
+			},
+			select: {
+				id: true,
+				username: true,
+				items: true,
+			},
+		});
+
+		return response;
+	} catch (err) {
+		console.log('Error in Character > Controller > Find All Items');
+		console.log(err);
+	}
+}
+
 export default {
 	get,
 	find,
@@ -240,4 +257,5 @@ export default {
 	update,
 	_delete,
 	advancedFind,
+	getAllItems,
 };

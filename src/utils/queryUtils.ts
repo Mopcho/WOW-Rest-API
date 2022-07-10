@@ -15,6 +15,7 @@ export function buildSelect(select: string | string[]): Entry {
 	return selectBuilder;
 }
 
+//NOT FINISHED
 export function buildQuery(query: AdvancedQuery): QueryDB {
 	let queryBuilder: Entry = {};
 
@@ -25,6 +26,7 @@ export function buildQuery(query: AdvancedQuery): QueryDB {
 			queryBuilder[key] = buildQuery(query[key]);
 		} else {
 			//Not nested
+			//TODO : Check the value of key and transform it based on its value
 			queryBuilder[key] = query[key];
 		}
 	}
