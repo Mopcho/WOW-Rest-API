@@ -299,6 +299,8 @@ async function buyItem(playerId: string, itemId: string) {
 			},
 		});
 
+		await adjustTotalHealth(playerId);
+
 		return response;
 	} catch (err) {
 		console.log('Error in Character > Controller > Buy Item');
@@ -402,6 +404,12 @@ async function adjustTotalHealth(playerId: string) {
 			},
 		});
 
+		let player = await prisma.player.findUnique({
+			where: {
+				id: playerId,
+			},
+		});
+
 		if (!playerItems) {
 			throw new Error('Nor Found');
 		}
@@ -415,12 +423,24 @@ async function adjustTotalHealth(playerId: string) {
 			}
 		});
 
-		console.log(stamina);
-		// Sum total stamina
-		// Calculate total health by this :
-		// totalHealth = (level * baseHealth)^BHM + (stamina * HPS)
+		if (!player) {
+			throw new Error('Not Found');
+		}
 
-		return { ok: false };
+		let newHealth =
+			Math.pow(player.level * healthPerLevel, baseHealthMultiplyer) +
+			stamina * healthPerStamina;
+
+		let response = await prisma.player.update({
+			where: {
+				id: playerId,
+			},
+			data: {
+				totalHealth: newHealth,
+			},
+		});
+
+		return response;
 	} catch (err) {
 		console.log('Error in Character > Controller > Buy Item');
 		console.log(err);
